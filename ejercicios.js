@@ -6,7 +6,7 @@ function normalizarRespuesta(valor) {
 
 function bancoDelEjercicio(id, tipo) {
   const propias = window.bancoPreguntas[id]?.[tipo] ?? [];
-  if (tipo !== "huecos") return propias;
+  if (tipo !== "huecos" || !archivo(id, tipo)) return propias;
   const material = new DOMParser().parseFromString(window.materialesBiologia[archivo(id, tipo)], "text/html");
   const anteriores = [...material.querySelectorAll("#huecos li")].map((fila, indice) => {
     const area = fila.querySelector(".topic").textContent;
@@ -59,14 +59,15 @@ function elegirPreguntas(id, tipo, banco) {
 function cargarEjercicio(frame, panel, id, tipo) {
   const banco = bancoDelEjercicio(id, tipo);
   if (!banco.length) return false;
-  const original = new DOMParser().parseFromString(window.materialesBiologia[archivo(id, tipo)], "text/html");
+  const ficha = archivo(id, tipo) ?? archivo("moneras", tipo);
+  const original = new DOMParser().parseFromString(window.materialesBiologia[ficha], "text/html");
   const estilo = original.querySelector("style").textContent;
   const esHuecos = tipo === "huecos";
   const titulo = apartados[tipo];
   const instrucciones = esHuecos
     ? "Completa cada frase con los términos de los apuntes."
-    : "Responde con una o dos palabras. Después, comprueba tus respuestas.";
-  const color = temas[id].color ? "green" : "";
+    : "Responde con una expresión breve. Después, comprueba tus respuestas.";
+  const color = temas[id].color === "verde" ? "green" : "";
   frame.srcdoc = `<!doctype html><html lang="es"><meta charset="utf-8">
 <title>${titulo}</title><style>${estilo} .short-field{display:block;margin-top:5px}.actions{align-items:center}</style>
 <body class="${color}"><main><article class="sheet"><header><strong>Biología · 1.º de Bachillerato</strong>

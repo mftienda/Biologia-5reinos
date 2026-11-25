@@ -2,7 +2,8 @@
 
 const temas = {
   moneras: { titulo: "Las moneras", descripcion: "Bacterias, arqueas y sus funciones vitales.", esquema: "01_esquema_moneras", imagen: "moneras.png", alt: "Dibujo esquemático de una bacteria", icono: "✦" },
-  protoctistas: { titulo: "Los protoctistas", descripcion: "Algas, protozoos e importancia ecológica y médica.", esquema: "02_esquema_protoctistas", imagen: "protoctistas.png", alt: "Tres dibujos de algas macroscópicas", icono: "≈", color: "verde" }
+  protoctistas: { titulo: "Los protoctistas", descripcion: "Algas, protozoos e importancia ecológica y médica.", esquema: "02_esquema_protoctistas", imagen: "protoctistas.png", alt: "Tres dibujos de algas macroscópicas", icono: "≈", color: "verde" },
+  ...unidad
 };
 const apartados = {
   estudiar: "Estudiar",
@@ -87,6 +88,7 @@ function porcentaje(correctas, total) {
 }
 
 function archivo(id, apartado) {
+  if (!temas[id].esquema) return undefined;
   const bases = {
     estudiar: temas[id].esquema,
     huecos: "01_rellenar_huecos_" + id,
@@ -107,19 +109,26 @@ function obtenerPanel(id, apartado) {
   const contenedor = elemento("div", "", "panel");
   const panel = { contenedor, estado: "" };
   paneles.set(ruta, panel);
-  if (apartado === "videos") {
+  if (temas[id].resumen && apartado === "estudiar") {
+    const resumen = elemento("article", "", "resumen");
+    resumen.append(elemento("h2", "Resumen"));
+    for (const [titulo, texto] of temas[id].resumen) {
+      resumen.append(elemento("h3", titulo), elemento("p", texto));
+    }
+    contenedor.append(resumen);
+  } else if (apartado === "videos") {
     const mensaje = elemento("div", "", "videos");
     mensaje.append(elemento("h2", "Vídeos explicativos"), elemento("p", "Próximamente"));
     contenedor.append(mensaje);
   } else {
     const base = archivo(id, apartado);
     const html = window.materialesBiologia?.[base];
-    if (!html) {
+    const ejercicio = apartado === "huecos" || apartado === "cortas";
+    if (!html && !ejercicio) {
       contenedor.append(elemento("p", "No se pudo cargar el material. Comprueba que la carpeta de la aplicación está completa.", "videos"));
     } else {
       const frame = document.createElement("iframe");
       frame.title = apartados[apartado] + " · " + temas[id].titulo;
-      const ejercicio = apartado === "huecos" || apartado === "cortas";
       if (!ejercicio || !cargarEjercicio(frame, panel, id, apartado)) frame.srcdoc = html;
       contenedor.append(frame);
     }
@@ -131,7 +140,9 @@ function obtenerPanel(id, apartado) {
 function navegar() {
   const [id, vista] = location.hash.slice(1).split("/");
   const tema = Object.hasOwn(temas, id) ? temas[id] : null;
-  const apartado = Object.hasOwn(apartados, vista) ? vista : "estudiar";
+  const opciones = Object.entries(apartados).filter(([key]) =>
+    !tema?.resumen || ["estudiar", "huecos", "cortas"].includes(key));
+  const apartado = opciones.some(([key]) => key === vista) ? vista : "estudiar";
   document.querySelector("#inicio").hidden = Boolean(tema);
   const area = document.querySelector("#tema");
   area.hidden = !tema;
@@ -144,7 +155,7 @@ function navegar() {
   document.querySelector("#titulo-tema").textContent = tema.titulo;
   const nav = document.querySelector("#apartados");
   nav.replaceChildren();
-  for (const [key, nombre] of Object.entries(apartados)) {
+  for (const [key, nombre] of opciones) {
     const item = enlace(nombre, "#" + id + "/" + key);
     if (key === apartado) item.setAttribute("aria-current", "page");
     nav.append(item);
@@ -185,10 +196,13 @@ for (const [id, tema] of Object.entries(temas)) {
   const entrada = enlace("Entrar", url, "boton principal");
   entrada.setAttribute("aria-label", "Entrar en " + tema.titulo.toLowerCase());
   contenido.append(titulo, elemento("p", tema.descripcion), entrada);
-  const imagen = document.createElement("img");
-  imagen.src = "ilustraciones/" + tema.imagen;
-  imagen.alt = tema.alt;
-  tarjeta.append(contenido, imagen);
+  tarjeta.append(contenido);
+  if (tema.imagen) {
+    const imagen = document.createElement("img");
+    imagen.src = "ilustraciones/" + tema.imagen;
+    imagen.alt = tema.alt;
+    tarjeta.append(imagen);
+  }
   document.querySelector("#tarjetas").append(tarjeta);
 }
 

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Biología · 1.º de Bachillerato</title><link rel="stylesheet" href="estilos.css"><script defer src="materiales.js"></script><script defer src="banco-preguntas.js"></script><script defer src="ejercicios.js"></script><script defer src="app.js"></script></head>
+<body>
+<header class="barra"><div class="ancho marca"><a href="#inicio" class="logotipo"><span aria-hidden="true">✦</span> Biología</a><nav id="temas" aria-label="Temas"><a href="#inicio">Inicio</a></nav></div></header>
+<main class="ancho" id="principal">
+<section id="inicio">
+ <div class="portada"><p class="nivel">Material de estudio</p><h1>BIOLOGÍA <span>– 1.º DE BACHILLERATO</span></h1><p>Elige un tema para estudiar o hacer ejercicios.</p></div>
+ <div id="tarjetas" class="tarjetas"></div>
+</section>
+<section id="tema" hidden>
+ <div class="cabecera-tema"><a href="#inicio">Volver al inicio</a><h1 id="titulo-tema"></h1><nav id="apartados" aria-label="Apartados del tema"></nav></div>
+ <div id="barra-material"></div>
+ <div id="paneles"></div>
+</section>
+<section class="progreso" aria-labelledby="titulo-progreso">
+ <div class="progreso-cab"><h2 id="titulo-progreso">Mi progreso</h2><button id="borrar" type="button">Borrar resultados</button></div>
+ <p id="aviso-datos" role="status" hidden></p><div id="resultados" class="resultados"></div>
+</section>
+<noscript>Activa JavaScript en el navegador para usar los ejercicios interactivos.</noscript>
+</main></body></html>
+
